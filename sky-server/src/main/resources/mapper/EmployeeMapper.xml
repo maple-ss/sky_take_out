@@ -10,4 +10,41 @@
                 #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
 
+    <select id="getById" resultType="com.sky.entity.Employee">
+        select *
+        from employee
+        where id = #{id}
+    </select>
+
+    <select id="pageQuery" resultType="com.sky.entity.Employee">
+        select *
+        from employee
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+        </where>
+        order by create_time desc, id desc
+    </select>
+
+    <update id="updateStatus">
+        update employee
+        set status      = #{status},
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        where id = #{id}
+    </update>
+
+    <update id="update">
+        update employee
+        set username    = #{username},
+            name        = #{name},
+            phone       = #{phone},
+            sex         = #{sex},
+            id_number   = #{idNumber},
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        where id = #{id}
+    </update>
+
 </mapper>

@@ -3,7 +3,7 @@ package com.sky.handler;
 import com.sky.exception.BaseException;
 import com.sky.result.Result;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler
-    public Result exceptionHandler(MethodArgumentNotValidException ex) {
+    public Result exceptionHandler(BindException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> Objects.toString(error.getDefaultMessage(), "参数校验失败"))
                 .findFirst()
