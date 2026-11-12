@@ -26,8 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -92,13 +90,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPassword(DigestUtils.md5DigestAsHex(
                 PasswordConstant.DEFAULT_PASSWORD.getBytes(StandardCharsets.UTF_8)));
 
-        LocalDateTime now = LocalDateTime.now();
-        Long currentId = BaseContext.getCurrentId();
-        employee.setCreateTime(now);
-        employee.setUpdateTime(now);
-        employee.setCreateUser(currentId);//这个id不是数据库唯一键值的id，是指代那个管理员id创建了他
-        employee.setUpdateUser(currentId);//这个id不是数据库唯一键值的id，是指代那个管理员id更新了他
-
         try {
             employeeMapper.insert(employee);
         } catch (DuplicateKeyException ex) {
@@ -134,8 +125,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = Employee.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
                 .build();
 
         if (employeeMapper.updateStatus(employee) == 0) {
@@ -181,8 +170,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         try {
             if (employeeMapper.update(employee) == 0) {
