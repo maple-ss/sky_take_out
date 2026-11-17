@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -36,7 +37,7 @@ public class DishController {
         return Result.success();
     }
 
-    @GetMapping("/page")
+    @GetMapping("/page")//要分页的信息都放在路径之后，并且符合DTO,直接接收即可
     @ApiOperation("菜品分页查询")
     public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO){
         log.info("菜品分页查询{}",dishPageQueryDTO);
@@ -46,7 +47,20 @@ public class DishController {
         return Result.success(pageResult);
     }
 
-    @DeleteMapping
+    @GetMapping("/list")//信息直接跟在list?后面，直接拿categoryId和name接收即可
+    @ApiOperation("根据分类id或菜品名称查询菜品")
+    public Result<List<DishVO>> list(Long categoryId, String name){
+        log.info("查询菜品列表, categoryId={}, name={}", categoryId, name);
+
+        Dish dish = new Dish();
+        dish.setCategoryId(categoryId);
+        dish.setName(name);
+
+        List<DishVO> dishVOS = dishService.listWithFlavor(dish);
+        return Result.success(dishVOS);
+    }
+
+    @DeleteMapping//一次性在路径?后面传入了多个id，所以用ids接收，但是要把逗号隔开，用RequestParam
     @ApiOperation("批量删除菜品")
     public Result delete(@RequestParam List<Long> ids){
         log.info("批量删除菜品{}",ids);
@@ -54,7 +68,12 @@ public class DishController {
         return Result.success();
     }
 
-    @GetMapping("/{id}")
+    /**
+     * 在修改菜品时会查询这个菜品
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")//{}格式的固定用PathVariable
     @ApiOperation("根据id查询菜品")
     public Result<DishVO> getById(@PathVariable Long id){
         log.info("根据id查询菜品{}",id);

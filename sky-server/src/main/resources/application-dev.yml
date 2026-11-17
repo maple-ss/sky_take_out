@@ -16,3 +16,6 @@ sky:
     port: 6379
     password: ${SKY_REDIS_PASSWORD}
     database: 0
+  wechat:
+    appid: wxe700eaef1357078a
+    secret: c1b840af6129f87008f0279df02862fc

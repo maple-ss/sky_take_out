@@ -1,5 +1,6 @@
 package com.sky.config;
 
+import com.sky.interceptor.JwtTokenUserInterceptor;
 import com.sky.json.JacksonObjectMapper;
 import com.sky.interceptor.JwtTokenAdminInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
+    @Autowired
+    private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+
     /**
      * 注册自定义拦截器
      *
@@ -40,6 +44,11 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns("/admin/employee/login");
+
+        registry.addInterceptor(jwtTokenUserInterceptor)
+                .addPathPatterns("/user/**")//这个路径下的所有请求都要进行拦截
+                .excludePathPatterns("/user/user/login")//登录页面不能拦截
+                .excludePathPatterns("/user/shop/status");//营业状态不能拦截
     }
 
     /**
