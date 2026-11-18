@@ -52,7 +52,7 @@ public interface DishMapper {
      * @param dish
      */
     @AutoFill(value = OperationType.UPDATE)
-    void update(Dish dish);
+    int update(Dish dish);
 
     /**
      * 根据条件查询菜品

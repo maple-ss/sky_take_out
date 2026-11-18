@@ -42,7 +42,7 @@ public interface CategoryMapper {
      * @param category
      */
     @AutoFill(OperationType.UPDATE)
-    void update(Category category);
+    int update(Category category);
 
     /**
      * 根据类型查询分类

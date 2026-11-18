@@ -62,5 +62,5 @@ public interface SetmealMapper {
     void deleteByIds(@Param("ids") List<Long> ids);
 
     @AutoFill(value = OperationType.UPDATE)
-    void update(@Param("setmeal") Setmeal setmeal);
+    int update(@Param("setmeal") Setmeal setmeal);
 }

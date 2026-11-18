@@ -11,7 +11,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.Cacheable;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +33,7 @@ public class DishController {
 
     @PostMapping
     @ApiOperation("新增菜品")
+    @CacheEvict(cacheNames = "dishCache", key = "#dishDTO.categoryId")
     public Result save(@Valid @RequestBody DishDTO dishDTO){
         log.info("新增菜品{}",dishDTO);
         dishService.saveWithFlavor(dishDTO);
@@ -62,6 +65,7 @@ public class DishController {
 
     @DeleteMapping//一次性在路径?后面传入了多个id，所以用ids接收，但是要把逗号隔开，用RequestParam
     @ApiOperation("批量删除菜品")
+    @CacheEvict(cacheNames = "dishCache",allEntries = true)
     public Result delete(@RequestParam List<Long> ids){
         log.info("批量删除菜品{}",ids);
         dishService.deletBatch(ids);
@@ -83,9 +87,18 @@ public class DishController {
 
     @PutMapping
     @ApiOperation("修改菜品")
+    @CacheEvict(cacheNames = "dishCache",allEntries = true)
     public Result update(@RequestBody DishDTO dishDTO){
         log.info("修改菜品",dishDTO);
         dishService.updateWithFlavor(dishDTO);
+        return Result.success();
+    }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("起售停售菜品")
+    public Result startOrStop(@PathVariable("status") Integer status, Long id){
+        log.info("起售或停售菜品, id={}, status={}", id, status);
+        dishService.startOrStop(status, id);
         return Result.success();
     }
 

@@ -6,6 +6,7 @@ import com.sky.entity.SetmealDish;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -40,4 +41,14 @@ public interface SetmealDishMapper {
 
     @Delete("delete from setmeal_dish where setmeal_id = #{setmealId} ")
     void deleteById(Long setmealId);
+
+    @Select("select count(*) from setmeal_dish sd " +
+            "left join dish d on sd.dish_id = d.id " +
+            "where sd.setmeal_id = #{setmealId} and d.status = 0")
+    Integer countDisabledDishBySetmealId(Long setmealId);
+
+    @Select("select count(distinct s.id) from setmeal_dish sd " +
+            "inner join setmeal s on sd.setmeal_id = s.id " +
+            "where sd.dish_id = #{dishId} and s.status = 1")
+    Integer countEnabledSetmealByDishId(Long dishId);
 }

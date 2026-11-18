@@ -7,6 +7,7 @@ import com.sky.constant.StatusConstant;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
+import com.sky.exception.BaseException;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.DishMapper;
@@ -100,11 +101,18 @@ public class CategoryServiceImpl implements CategoryService {
      * @param id
      */
     public void startOrStop(Integer status, Long id) {
+        if (!StatusConstant.ENABLE.equals(status) && !StatusConstant.DISABLE.equals(status)) {
+            throw new BaseException(MessageConstant.STATUS_ERROR);
+        }
+
         Category category = Category.builder()
                 .id(id)
                 .status(status)
                 .build();
-        categoryMapper.update(category);
+
+        if (categoryMapper.update(category) == 0) {
+            throw new BaseException(MessageConstant.CATEGORY_NOT_FOUND);
+        }
     }
 
     /**

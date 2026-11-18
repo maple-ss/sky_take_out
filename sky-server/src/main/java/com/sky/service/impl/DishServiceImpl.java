@@ -8,7 +8,9 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.exception.BaseException;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.DishDisableFailedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
@@ -18,6 +20,8 @@ import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,8 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private CacheManager cacheManager;
     /**
      * 新增菜品和口味数据
      * @param dishDTO
@@ -177,6 +183,37 @@ public class DishServiceImpl implements DishService {
         }
 
         return dishVOList;
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        if (!StatusConstant.ENABLE.equals(status) && !StatusConstant.DISABLE.equals(status)) {
+            throw new BaseException(MessageConstant.STATUS_ERROR);
+        }
+
+        Dish currentDish = dishMapper.getById(id);
+        if (currentDish == null) {
+            throw new BaseException(MessageConstant.DISH_NOT_FOUND);
+        }
+
+        if (StatusConstant.DISABLE.equals(status)
+                && setmealDishMapper.countEnabledSetmealByDishId(id) > 0) {
+            throw new DishDisableFailedException(MessageConstant.DISH_BE_RELATED_BY_ENABLED_SETMEAL);
+        }
+
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
+
+        if (dishMapper.update(dish) == 0) {
+            throw new BaseException(MessageConstant.DISH_NOT_FOUND);
+        }
+
+        Cache dishCache = cacheManager.getCache("dishCache");
+        if (dishCache != null) {
+            dishCache.evict(currentDish.getCategoryId());
+        }
     }
 
 
