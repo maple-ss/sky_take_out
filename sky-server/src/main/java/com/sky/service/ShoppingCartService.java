@@ -12,4 +12,6 @@ public interface ShoppingCartService {
     List<ShoppingCartVO> showShoppingCart();
 
     void cleanShoppingCart();
+
+    void subShoppingCart(ShoppingCartDTO shoppingCartDTO);
 }
